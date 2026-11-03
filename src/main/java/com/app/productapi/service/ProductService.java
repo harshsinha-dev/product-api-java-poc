@@ -6,6 +6,7 @@ import com.app.productapi.model.Product;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ProductService {
@@ -21,13 +22,14 @@ public class ProductService {
         return dummyJsonClient.getAllProducts().getProducts();
     }
 
-    public ProductPageResponse getProducts(int page, int size) {
+    //get products with pagination
+    public ProductPageResponse getProducts(int page, int size, Map<String, String> filters) {
         if (page < 0 || size <= 0) {
             throw new IllegalArgumentException(
                     "Page must be >= 0 and size must be > 0"
             );
         }
-        List<Product> products = getAllProducts();
+        List<Product> products = filterProducts(getAllProducts(), filters);
         int totalElements = products.size();
         int totalPages = (int) Math.ceil((double) totalElements / size);
 
@@ -44,4 +46,32 @@ public class ProductService {
         response.setHasNext(page + 1 < totalPages);
         return response;
     }
+
+    //filtering products
+    private List<Product> filterProducts(
+            List<Product> products,
+            Map<String, String> filters) {
+
+
+        String requestedCategory = filters.get("category");
+        String requestedBrand = filters.get("brand");
+
+        return products.stream()
+                .filter(product -> {
+                    boolean categoryMatches =
+                            requestedCategory  == null ||
+                                    (product.getCategory() != null &&
+                                            requestedCategory .equalsIgnoreCase(product.getCategory()));
+                    boolean brandMatches =
+                            requestedBrand == null ||
+                                    (product.getBrand() != null &&
+                                            requestedBrand.equalsIgnoreCase(product.getBrand()));
+
+                    return categoryMatches && brandMatches;
+                })
+                .toList();
+    }
+
+
+
 }
