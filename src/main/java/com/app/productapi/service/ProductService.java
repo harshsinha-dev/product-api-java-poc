@@ -76,9 +76,7 @@ public class ProductService {
 
     //sorting products
 
-    private List<Product> sortProducts(
-            List<Product> products,
-            List<String> sort) {
+    private List<Product> sortProducts(List<Product> products, List<String> sort) {
 
         if (sort == null || sort.isEmpty()) {
             return products;
@@ -101,15 +99,15 @@ public class ProductService {
         );
 
         Comparator<Product> finalComparator = null;
-
         for (int i = 0; i < sort.size();) {
 
             String field;
-            String direction;
+            String direction = "asc";
 
-            if (sort.get(i).contains(",")) {
+            String option = sort.get(i);
 
-                String[] parts = sort.get(i).split(",");
+            if (option.contains(",")) {
+                String[] parts = option.split(",", -1);
 
                 if (parts.length != 2) {
                     throw new IllegalArgumentException(
@@ -121,15 +119,13 @@ public class ProductService {
                 i++;
 
             } else {
+                field = option.trim();
+                i++;
 
-                if (i + 1 >= sort.size()) {
-                    throw new IllegalArgumentException(
-                            "Invalid sort format. Use field,direction");
+                if (i < sort.size() && (sort.get(i).equalsIgnoreCase("asc") || sort.get(i).equalsIgnoreCase("desc"))) {
+                    direction = sort.get(i).trim();
+                    i++;
                 }
-
-                field = sort.get(i).trim();
-                direction = sort.get(i + 1).trim();
-                i += 2;
             }
 
             Comparator<Product> comparator = comparators.get(field);
@@ -141,7 +137,6 @@ public class ProductService {
 
             if (direction.equalsIgnoreCase("desc")) {
                 comparator = comparator.reversed();
-
             } else if (!direction.equalsIgnoreCase("asc")) {
                 throw new IllegalArgumentException(
                         "Invalid sort direction: " + direction);
