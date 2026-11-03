@@ -5,6 +5,7 @@ import com.app.productapi.dto.ProductPageResponse;
 import com.app.productapi.model.Product;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -23,13 +24,14 @@ public class ProductService {
     }
 
     //get products with pagination
-    public ProductPageResponse getProducts(int page, int size, Map<String, String> filters) {
+    public ProductPageResponse getProducts(int page, int size, Map<String, String> filters, List<String> sort) {
         if (page < 0 || size <= 0) {
             throw new IllegalArgumentException(
                     "Page must be >= 0 and size must be > 0"
             );
         }
         List<Product> products = filterProducts(getAllProducts(), filters);
+        products = sortProducts(products, sort);
         int totalElements = products.size();
         int totalPages = (int) Math.ceil((double) totalElements / size);
 
@@ -72,6 +74,88 @@ public class ProductService {
                 .toList();
     }
 
+    //sorting products
+
+    private List<Product> sortProducts(
+            List<Product> products,
+            List<String> sort) {
+
+        if (sort == null || sort.isEmpty()) {
+            return products;
+        }
+
+        Map<String, Comparator<Product>> comparators = Map.of(
+                "id", Comparator.comparing(Product::getId),
+                "title", Comparator.comparing(
+                        Product::getTitle,
+                        Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)),
+                "price", Comparator.comparingDouble(Product::getPrice),
+                "rating", Comparator.comparingDouble(Product::getRating),
+                "stock", Comparator.comparingInt(Product::getStock),
+                "category", Comparator.comparing(
+                        Product::getCategory,
+                        Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)),
+                "brand", Comparator.comparing(
+                        Product::getBrand,
+                        Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))
+        );
+
+        Comparator<Product> finalComparator = null;
+
+        for (int i = 0; i < sort.size();) {
+
+            String field;
+            String direction;
+
+            if (sort.get(i).contains(",")) {
+
+                String[] parts = sort.get(i).split(",");
+
+                if (parts.length != 2) {
+                    throw new IllegalArgumentException(
+                            "Invalid sort format. Use field,direction");
+                }
+
+                field = parts[0].trim();
+                direction = parts[1].trim();
+                i++;
+
+            } else {
+
+                if (i + 1 >= sort.size()) {
+                    throw new IllegalArgumentException(
+                            "Invalid sort format. Use field,direction");
+                }
+
+                field = sort.get(i).trim();
+                direction = sort.get(i + 1).trim();
+                i += 2;
+            }
+
+            Comparator<Product> comparator = comparators.get(field);
+
+            if (comparator == null) {
+                throw new IllegalArgumentException(
+                        "Unsupported sort field: " + field);
+            }
+
+            if (direction.equalsIgnoreCase("desc")) {
+                comparator = comparator.reversed();
+
+            } else if (!direction.equalsIgnoreCase("asc")) {
+                throw new IllegalArgumentException(
+                        "Invalid sort direction: " + direction);
+            }
+
+            finalComparator = finalComparator == null
+                    ? comparator
+                    : finalComparator.thenComparing(comparator);
+        }
+
+        return products.stream()
+                .sorted(finalComparator)
+                .toList();
+    }
 
 
 }
