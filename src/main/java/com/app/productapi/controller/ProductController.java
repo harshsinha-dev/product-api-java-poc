@@ -22,7 +22,7 @@ public class ProductController {
 
     @GetMapping
     public ProductPageResponse getProducts(
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String brand,
