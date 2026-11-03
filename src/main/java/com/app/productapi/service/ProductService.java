@@ -25,9 +25,9 @@ public class ProductService {
 
     //get products with pagination
     public ProductPageResponse getProducts(int page, int size, Map<String, String> filters, List<String> sort) {
-        if (page < 0 || size <= 0) {
+        if (page < 1 || size <= 0) {
             throw new IllegalArgumentException(
-                    "Page must be >= 0 and size must be > 0"
+                    "Page must be >= 1 and size must be > 0"
             );
         }
         List<Product> products = filterProducts(getAllProducts(), filters);
@@ -35,7 +35,7 @@ public class ProductService {
         int totalElements = products.size();
         int totalPages = (int) Math.ceil((double) totalElements / size);
 
-        int startIndex = Math.min(page * size, totalElements);
+        int startIndex = Math.min((page-1) * size, totalElements);
         int endIndex = Math.min(startIndex + size, totalElements);
         List<Product> pageContent = products.subList(startIndex, endIndex);
 
@@ -45,7 +45,7 @@ public class ProductService {
         response.setSize(size);
         response.setTotalElements(totalElements);
         response.setTotalPages(totalPages);
-        response.setHasNext(page + 1 < totalPages);
+        response.setHasNext(page  < totalPages);
         return response;
     }
 
