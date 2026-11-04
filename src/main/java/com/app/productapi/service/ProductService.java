@@ -3,6 +3,7 @@ package com.app.productapi.service;
 import com.app.productapi.client.DummyJsonClient;
 import com.app.productapi.dto.AddProductRequest;
 import com.app.productapi.dto.ProductPageResponse;
+import com.app.productapi.dto.UpdateProductRequest;
 import com.app.productapi.model.Product;
 import org.springframework.stereotype.Service;
 
@@ -153,6 +154,10 @@ public class ProductService {
 
     public Product addProduct(AddProductRequest request){
         return dummyJsonClient.addProduct(request);
+    }
+
+    public Product updateProduct(Long id, UpdateProductRequest request) {
+        return dummyJsonClient.updateProduct(id, request);
     }
 
 }

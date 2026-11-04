@@ -2,6 +2,7 @@ package com.app.productapi.controller;
 
 import com.app.productapi.dto.AddProductRequest;
 import com.app.productapi.dto.ProductPageResponse;
+import com.app.productapi.dto.UpdateProductRequest;
 import com.app.productapi.model.Product;
 import com.app.productapi.service.ProductService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -55,5 +56,10 @@ public class ProductController {
     @PostMapping
     public Product addProduct(@Valid @RequestBody AddProductRequest request) {
         return productService.addProduct(request);
+    }
+
+    @PatchMapping("/{id}")
+    public Product updateProduct(@PathVariable Long id, @RequestBody UpdateProductRequest request) {
+        return productService.updateProduct(id, request);
     }
 }
