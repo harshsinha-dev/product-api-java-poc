@@ -1,6 +1,7 @@
 package com.app.productapi.service;
 
 import com.app.productapi.client.DummyJsonClient;
+import com.app.productapi.dto.AddProductRequest;
 import com.app.productapi.dto.ProductPageResponse;
 import com.app.productapi.model.Product;
 import org.springframework.stereotype.Service;
@@ -50,9 +51,7 @@ public class ProductService {
     }
 
     //filtering products
-    private List<Product> filterProducts(
-            List<Product> products,
-            Map<String, String> filters) {
+    private List<Product> filterProducts(List<Product> products, Map<String, String> filters) {
 
 
         String requestedCategory = filters.get("category");
@@ -152,5 +151,8 @@ public class ProductService {
                 .toList();
     }
 
+    public Product addProduct(AddProductRequest request){
+        return dummyJsonClient.addProduct(request);
+    }
 
 }

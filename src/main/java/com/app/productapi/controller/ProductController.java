@@ -1,12 +1,12 @@
 package com.app.productapi.controller;
 
+import com.app.productapi.dto.AddProductRequest;
 import com.app.productapi.dto.ProductPageResponse;
+import com.app.productapi.model.Product;
 import com.app.productapi.service.ProductService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
@@ -50,5 +50,10 @@ public class ProductController {
         }
         System.out.println("Sort values: " + sort);
         return productService.getProducts(page, size, filters ,sort );
+    }
+
+    @PostMapping
+    public Product addProduct(@Valid @RequestBody AddProductRequest request) {
+        return productService.addProduct(request);
     }
 }
